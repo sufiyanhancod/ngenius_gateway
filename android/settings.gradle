@@ -1,2 +1,13 @@
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)  // Change this line
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+
+
 rootProject.name = 'ngenius'
-include ':app', ':payment-sdk', ':payment-sdk-core', ':payment-sdk-samsungpay'
+include ':app'

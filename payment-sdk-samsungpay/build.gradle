@@ -48,9 +48,6 @@ dependencies {
     testImplementation "junit:junit:$junit"
     api files('libs/samsungpay_2.18.00.jar')
 }
-repositories {
-    mavenCentral()
-}
 
 publishing {
     publications {

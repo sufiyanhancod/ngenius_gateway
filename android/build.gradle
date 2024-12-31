@@ -6,6 +6,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://jitpack.io' }
     }
 
     dependencies {
@@ -18,6 +19,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://jitpack.io' }
     }
 }
 
@@ -68,7 +70,7 @@ android {
 }
 
 dependencies {
-    implementation project(':payment-sdk')
-    implementation project(':payment-sdk-core')
-    implementation project(':payment-sdk-samsungpay')
+//    implementation 'com.github.network-international.payment-sdk-android:payment-sdk-core:3.1.7'
+    implementation "com.github.network-international.payment-sdk-android:payment-sdk-core:3.1.7"
+//    implementation 'com.github.network-international.payment-sdk-android:payment-sdk-samsungpay:3.1.7'
 }
