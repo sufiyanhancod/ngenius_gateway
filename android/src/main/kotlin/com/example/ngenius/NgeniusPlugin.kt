@@ -34,7 +34,7 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler {
   private var activity: Activity? = null
   private lateinit var paymentClient: PaymentClient
 
-  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "ngenius")
     channel.setMethodCallHandler(this)
   }

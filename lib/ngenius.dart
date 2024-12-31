@@ -37,10 +37,15 @@ class Ngenius {
 
   NgeniusPlatform get _ngeniusPlatform => NgeniusPlatform.instance;
 
-  Future<String?> createOrder() {
+  Future<String?> createOrder({
+    required String amount,
+    required String currency,
+  }) {
     return _ngeniusPlatform.createOrder(
       apiKey: _apiKey,
       outletId: _outletId,
+      amount: amount,
+      currency: currency,
     );
   }
 }

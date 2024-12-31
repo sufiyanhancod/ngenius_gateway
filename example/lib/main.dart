@@ -33,7 +33,8 @@ class _MyAppState extends State<MyApp> {
     // We also handle the message potentially returning null.
     try {
       platformVersion =
-          await _ngeniusPlugin.createOrder() ?? 'Unknown platform version';
+          await _ngeniusPlugin.createOrder(amount: '100', currency: 'USD') ??
+              'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -58,7 +59,7 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: TextButton(
             onPressed: () {
-              _ngeniusPlugin.createOrder();
+              _ngeniusPlugin.createOrder(amount: '100', currency: 'USD');
             },
             child: Text('Create Order'),
           ),

@@ -13,8 +13,15 @@ class MethodChannelNgenius extends NgeniusPlatform {
   Future<String?> createOrder({
     required String apiKey,
     required String outletId,
+    required String amount,
+    required String currency,
   }) async {
-    final version = await methodChannel.invokeMethod<String>('createOrder');
+    final version = await methodChannel.invokeMethod<String>('createOrder', {
+      'apiKey': apiKey,
+      'outletId': outletId,
+      'amount': amount,
+      'currency': currency,
+    });
     return version;
   }
 }
