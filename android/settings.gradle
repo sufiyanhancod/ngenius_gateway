@@ -1,0 +1,2 @@
+rootProject.name = 'ngenius'
+include ':app', ':payment-sdk', ':payment-sdk-core', ':payment-sdk-samsungpay'
