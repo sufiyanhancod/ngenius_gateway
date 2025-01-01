@@ -15,8 +15,6 @@ import payment.sdk.android.payments.PaymentsRequest
 import payment.sdk.android.payments.PaymentsResult
 import androidx.activity.ComponentActivity
 import android.util.Log
-import androidx.fragment.app.FragmentActivity
-import io.flutter.embedding.android.FlutterFragmentActivity
 
 private const val CHANNEL = "ngenius"
 private const val METHOD = "createOrder"
@@ -41,21 +39,16 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
   }
 
   private fun initializePaymentsLauncher() {
-      activity?.let { currentActivity ->
-          try {
-              // Cast to FlutterFragmentActivity which extends ComponentActivity
-              val componentActivity = currentActivity as androidx.fragment.app.FragmentActivity
-              paymentsLauncher = PaymentsLauncher(componentActivity) { paymentResult ->
-                  handlePaymentResult(paymentResult)
-              }
-          } catch (e: Exception) {
-              Log.e("NgeniusPlugin", "Error initializing PaymentsLauncher", e)
-              result.error("INITIALIZATION_ERROR", "Failed to initialize payment launcher: ${e.message}", null)
-          }
-      } ?: run {
-          Log.e("NgeniusPlugin", "Activity is null")
-          result.error("INITIALIZATION_ERROR", "Activity is null", null)
-      }
+    activity?.let { currentActivity ->
+        if (currentActivity is androidx.activity.ComponentActivity) {
+            paymentsLauncher = PaymentsLauncher(currentActivity) { paymentResult ->
+                handlePaymentResult(paymentResult)
+            }
+        } else {
+            Log.e("NgeniusPlugin", "Activity is not ComponentActivity")
+            result.error("INITIALIZATION_ERROR", "Activity must be ComponentActivity", null)
+        }
+    }
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -69,33 +62,14 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
           result.error("INITIALISATION_ERROR", "Please provide valid gatewayUrl and code", "")
           return
         }
-        
-        // Debug logs
-        Log.d("NgeniusPlugin", "AuthURL: $authUrl")
-        Log.d("NgeniusPlugin", "PayPageURL: $payPageUrl")
-        Log.d("NgeniusPlugin", "PaymentsLauncher is null: ${paymentsLauncher == null}")
-        Log.d("NgeniusPlugin", "Activity is null: ${activity == null}")
-
-        // Try to initialize launcher if it's null
-        if (paymentsLauncher == null) {
-          initializePaymentsLauncher()
-        }
 
         val request = PaymentsRequest.builder()
           .gatewayAuthorizationUrl(authUrl)
           .payPageUrl(payPageUrl)
           .build()
 
-        if (paymentsLauncher != null) {
-          try {
-            paymentsLauncher?.launch(request)
-          } catch (e: Exception) {
-            Log.e("NgeniusPlugin", "Error launching payment", e)
-            result.error("LAUNCH_ERROR", "Failed to launch payment: ${e.message}", null)
-          }
-        } else {
-          Log.e("NgeniusPlugin", "PaymentsLauncher is still null after initialization attempt")
-          result.error("LAUNCHER_ERROR", "Payment launcher initialization failed", null)
+        paymentsLauncher?.launch(request) ?: run {
+          result.error("LAUNCHER_ERROR", "Payment launcher not initialized", null)
         }
       }
       else -> result.notImplemented()
