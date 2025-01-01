@@ -63,6 +63,11 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
           return
         }
 
+        // Try to initialize launcher if it's null
+        if (paymentsLauncher == null) {
+          initializePaymentsLauncher()
+        }
+
         val request = PaymentsRequest.builder()
           .gatewayAuthorizationUrl(authUrl)
           .payPageUrl(payPageUrl)
