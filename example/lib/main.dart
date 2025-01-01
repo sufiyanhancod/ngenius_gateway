@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:ngenius/ngenius.dart';
 
 void main() {
@@ -16,52 +13,28 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _ngeniusPlugin =
-      Ngenius(apiKey: 'your_api_key', outletId: 'your_outlet_id');
-
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _ngeniusPlugin.createOrder(amount: '100', currency: 'USD') ??
-              'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
-  }
+  final _ngeniusPlugin = Ngenius(
+      apiKey:
+          'ZmI3ODhlODQtYmVlYi00ZWFkLWIwZGYtOWYxNWM3YWM0MmI0OjhmNzhhNmQ2LTI2MGQtNDdjYy1hZTA5LTc2OTliZjgzNmY3Yg==',
+      outletId: '320d54c8-cb64-4199-9e51-be9611094a10');
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Ngenius'),
         ),
         body: Center(
           child: TextButton(
-            onPressed: () {
-              _ngeniusPlugin.createOrder(amount: '100', currency: 'USD');
+            onPressed: () async {
+              await _ngeniusPlugin.createOrder(
+                amount: 100,
+                currencyCode: 'AED',
+                action: 'AUTH',
+              );
             },
-            child: Text('Create Order'),
+            child: const Text('Create Order'),
           ),
         ),
       ),

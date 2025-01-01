@@ -5,6 +5,9 @@
 // platforms in the `pubspec.yaml` at
 // https://flutter.dev/to/pubspec-plugin-platforms.
 
+import 'package:flutter/foundation.dart';
+import 'package:ngenius/http/payment_service.dart';
+
 import 'ngenius_platform_interface.dart';
 
 class Ngenius {
@@ -37,15 +40,42 @@ class Ngenius {
 
   NgeniusPlatform get _ngeniusPlatform => NgeniusPlatform.instance;
 
-  Future<String?> createOrder({
-    required String amount,
-    required String currency,
-  }) {
-    return _ngeniusPlatform.createOrder(
+  Future<void> createOrder({
+    required double amount,
+    String? email,
+    String? description,
+    required String currencyCode,
+    required String action,
+  }) async {
+    final paymentService = NetworkPaymentService(
       apiKey: _apiKey,
       outletId: _outletId,
-      amount: amount,
-      currency: currency,
+      isSandbox: true, // Use sandbox environment
     );
+
+    try {
+      final orderResponse = await paymentService.createOrder(
+        amount: amount,
+        currencyCode: currencyCode,
+        action: action,
+        email: email,
+        description: description,
+      );
+
+      debugPrint('Order Response: $orderResponse');
+      // The payment page URL can be found in the response
+      final authUrl = orderResponse['_links']['payment-authorization']['href'];
+      final paymentUrl = orderResponse['_links']['payment']['href'];
+
+      debugPrint('Order created successfully!');
+      debugPrint('Payment URL: $paymentUrl');
+      debugPrint('Authorization URL: $authUrl');
+      _ngeniusPlatform.createOrder(
+        authUrl: authUrl,
+        paymentUrl: paymentUrl,
+      );
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
   }
 }

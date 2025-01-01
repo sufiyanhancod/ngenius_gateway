@@ -24,9 +24,7 @@ abstract class NgeniusPlatform extends PlatformInterface {
   }
 
   Future<String?> createOrder({
-    required String apiKey,
-    required String outletId,
-    required String amount,
-    required String currency,
+    required String authUrl,
+    required String paymentUrl,
   });
 }

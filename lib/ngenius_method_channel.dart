@@ -11,16 +11,12 @@ class MethodChannelNgenius extends NgeniusPlatform {
 
   @override
   Future<String?> createOrder({
-    required String apiKey,
-    required String outletId,
-    required String amount,
-    required String currency,
+    required String authUrl,
+    required String paymentUrl,
   }) async {
     final version = await methodChannel.invokeMethod<String>('createOrder', {
-      'apiKey': apiKey,
-      'outletId': outletId,
-      'amount': amount,
-      'currency': currency,
+      'authUrl': authUrl,
+      'payPageUrl': paymentUrl,
     });
     return version;
   }
