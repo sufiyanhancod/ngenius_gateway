@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:dio/dio.dart';
 import 'ngenius_platform_interface.dart';
 
 class MethodChannelNgenius extends NgeniusPlatform {
