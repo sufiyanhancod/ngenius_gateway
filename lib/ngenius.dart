@@ -10,9 +10,14 @@ import 'ngenius_platform_interface.dart';
 class Ngenius {
   // Create a singleton for the plugin class and add mid and enckey to it.
   static final Ngenius _instance = Ngenius._internal();
-  factory Ngenius({required String apiKey, required String outletId}) {
+  factory Ngenius({
+    required String baseUrl,
+    required String apiKey,
+    required String outletId,
+  }) {
     _instance.setApiKey(apiKey);
     _instance.setOutletId(outletId);
+    _instance.setBaseUrl(baseUrl);
     return _instance;
   }
   Ngenius._internal();
@@ -23,7 +28,7 @@ class Ngenius {
   // Add mid and enckey to the singleton.
   late String _apiKey;
   late String _outletId;
-
+  late String _baseUrl;
   void setApiKey(String apiKey) {
     _apiKey = apiKey;
   }
@@ -34,14 +39,18 @@ class Ngenius {
 
   String get apiKey => _apiKey;
   String get outletId => _outletId;
-
+  String get baseUrl => _baseUrl;
   NgeniusPlatform get _ngeniusPlatform => NgeniusPlatform.instance;
+  void setBaseUrl(String baseUrl) {
+    _baseUrl = baseUrl;
+  }
 
   Future<String?> createOrder({
     required String amount,
     required String currency,
   }) {
     return _ngeniusPlatform.createOrder(
+      baseUrl: _baseUrl,
       apiKey: _apiKey,
       outletId: _outletId,
       amount: amount,

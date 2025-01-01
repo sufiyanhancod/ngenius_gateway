@@ -24,9 +24,12 @@ abstract class NgeniusPlatform extends PlatformInterface {
   }
 
   Future<String?> createOrder({
+    required String baseUrl,
     required String apiKey,
     required String outletId,
     required String amount,
     required String currency,
-  });
+  }) {
+    throw UnimplementedError('createOrder() has not been implemented.');
+  }
 }
