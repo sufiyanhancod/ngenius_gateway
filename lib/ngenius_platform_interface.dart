@@ -27,4 +27,8 @@ abstract class NgeniusPlatform extends PlatformInterface {
     required String authUrl,
     required String paymentUrl,
   });
+
+  Future<dynamic> showCardPaymentUI({
+    required String response,
+  });
 }

@@ -2,11 +2,15 @@ PODS:
   - Flutter (1.0.0)
   - integration_test (0.0.1):
     - Flutter
+  - ngenius (0.0.1):
+    - Flutter
+    - NISdk
   - NISdk (5.1.6)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - ngenius (from `.symlinks/plugins/ngenius/ios`)
   - NISdk
 
 SPEC REPOS:
@@ -18,10 +22,13 @@ EXTERNAL SOURCES:
     :path: Flutter
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
+  ngenius:
+    :path: ".symlinks/plugins/ngenius/ios"
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+  ngenius: a43ca91d493296798b6f29e11b666fb880f9e4de
   NISdk: 6ea36e626a0407fe01e6185b4b536af3b1fd4d9f
 
 PODFILE CHECKSUM: 60b5dc2e4467dcb8b0a1cffd35d7cb51bddd293a

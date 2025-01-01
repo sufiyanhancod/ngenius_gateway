@@ -17,4 +17,13 @@ class MethodChannelNgenius extends NgeniusPlatform {
     });
     return version;
   }
+
+  @override
+  Future<dynamic> showCardPaymentUI({
+    required String response,
+  }) async {
+    return await methodChannel.invokeMethod<String>('showCardPaymentUI', {
+      'response': response,
+    });
+  }
 }

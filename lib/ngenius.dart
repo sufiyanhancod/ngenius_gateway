@@ -5,6 +5,9 @@
 // platforms in the `pubspec.yaml` at
 // https://flutter.dev/to/pubspec-plugin-platforms.
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:ngenius/http/payment_service.dart';
 
@@ -72,10 +75,18 @@ class Ngenius {
       debugPrint('Order created successfully!');
       debugPrint('Payment URL: $paymentUrl');
       debugPrint('Authorization URL: $authUrl');
-      _ngeniusPlatform.createOrder(
-        authUrl: authUrl,
-        paymentUrl: paymentUrl,
-      );
+
+      if (Platform.isAndroid) {
+        await _ngeniusPlatform.createOrder(
+          authUrl: authUrl,
+          paymentUrl: paymentUrl,
+        );
+      } else if (Platform.isIOS) {
+        final resp = await _ngeniusPlatform.showCardPaymentUI(
+          response: jsonEncode(orderResponse),
+        );
+        debugPrint('Response: $resp');
+      }
     } catch (e) {
       debugPrint('Error: $e');
     }

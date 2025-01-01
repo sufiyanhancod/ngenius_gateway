@@ -43,6 +43,8 @@ flutter:
       android:
         package: com.example.ngenius
         pluginClass: NgeniusPlugin
+      ios:
+        pluginClass: NgeniusPlugin
     # -------------------
     android: 
     ios: "11.0"
