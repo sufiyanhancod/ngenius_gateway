@@ -6,12 +6,28 @@
 // https://flutter.dev/to/pubspec-plugin-platforms.
 
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:ngenius/http/payment_service.dart';
 
 import 'ngenius_platform_interface.dart';
+
+class NgeniusPaymentResult {
+  final bool success;
+  final String status;
+  final String message;
+  final Map<String, dynamic>? data;
+
+  NgeniusPaymentResult({
+    required this.success,
+    required this.status,
+    required this.message,
+    this.data,
+  });
+}
 
 class Ngenius {
   // Create a singleton for the plugin class and add mid and enckey to it.
@@ -33,6 +49,7 @@ class Ngenius {
   // Add mid and enckey to the singleton.
   late String _apiKey;
   late String _outletId;
+
   void setApiKey(String apiKey) {
     _apiKey = apiKey;
   }
@@ -45,7 +62,7 @@ class Ngenius {
   String get outletId => _outletId;
   NgeniusPlatform get _ngeniusPlatform => NgeniusPlatform.instance;
 
-  Future<void> createOrder({
+  Future<NgeniusPaymentResult> createOrder({
     required double amount,
     String? email,
     String? description,
@@ -55,7 +72,7 @@ class Ngenius {
     final paymentService = NetworkPaymentService(
       apiKey: _apiKey,
       outletId: _outletId,
-      isSandbox: true, // Use sandbox environment
+      isSandbox: true,
     );
 
     try {
@@ -68,27 +85,120 @@ class Ngenius {
       );
 
       debugPrint('Order Response: $orderResponse');
-      // The payment page URL can be found in the response
       final authUrl = orderResponse['_links']['payment-authorization']['href'];
       final paymentUrl = orderResponse['_links']['payment']['href'];
 
-      debugPrint('Order created successfully!');
-      debugPrint('Payment URL: $paymentUrl');
-      debugPrint('Authorization URL: $authUrl');
-
       if (Platform.isAndroid) {
-        await _ngeniusPlatform.createOrder(
+        final result = await _ngeniusPlatform.createOrder(
           authUrl: authUrl,
           paymentUrl: paymentUrl,
         );
+        log(result.toString());
+
+        return _handlePaymentResult(result);
       } else if (Platform.isIOS) {
-        final resp = await _ngeniusPlatform.showCardPaymentUI(
+        final result = await _ngeniusPlatform.showCardPaymentUI(
           response: jsonEncode(orderResponse),
         );
-        debugPrint('Response: $resp');
+
+        return _handlePaymentResult(result);
       }
+
+      throw PlatformException(
+        code: 'UNSUPPORTED_PLATFORM',
+        message: 'Current platform is not supported',
+      );
     } catch (e) {
-      debugPrint('Error: $e');
+      if (e is PlatformException) {
+        return NgeniusPaymentResult(
+          success: false,
+          status: e.code,
+          message: e.message ?? 'Unknown error',
+        );
+      }
+      return NgeniusPaymentResult(
+        success: false,
+        status: 'ERROR',
+        message: e.toString(),
+      );
+    }
+  }
+
+  NgeniusPaymentResult _handlePaymentResult(dynamic result) {
+    log(result.toString());
+    if (result == 'AUTH_SUCCESS') {
+      return NgeniusPaymentResult(
+        success: true,
+        status: 'AUTH_SUCCESS',
+        message: 'Payment completed successfully',
+      );
+    }
+    if (result == 'CAPTURE_SUCCESS') {
+      return NgeniusPaymentResult(
+        success: true,
+        status: 'CAPTURE_SUCCESS',
+        message: 'Payment completed successfully',
+      );
+    }
+    if (result == 'PURCHASE_SUCCESS') {
+      return NgeniusPaymentResult(
+        success: true,
+        status: 'PURCHASE_SUCCESS',
+        message: 'Payment completed successfully',
+      );
+    }
+    if (result == 'REVIEW_SUCCESS') {
+      return NgeniusPaymentResult(
+        success: true,
+        status: 'REVIEW_SUCCESS',
+        message: 'Payment completed successfully',
+      );
+    }
+
+    // Handle specific error cases
+    switch (result) {
+      case 'PAYMENT_FAILED':
+        return NgeniusPaymentResult(
+          success: false,
+          status: 'PAYMENT_FAILED',
+          message: 'Payment was not successful',
+        );
+      case 'PAYMENT_CANCELLED':
+        return NgeniusPaymentResult(
+          success: false,
+          status: 'PAYMENT_CANCELLED',
+          message: 'Payment was cancelled by user',
+        );
+      case 'AUTH_FAILED':
+        return NgeniusPaymentResult(
+          success: false,
+          status: 'AUTH_FAILED',
+          message: 'Payment authorization failed',
+        );
+      case 'FAILED':
+        return NgeniusPaymentResult(
+          success: false,
+          status: 'FAILED',
+          message: 'Payment failed',
+        );
+      case 'ERROR':
+        return NgeniusPaymentResult(
+          success: false,
+          status: 'ERROR',
+          message: 'An unexpected error occurred',
+        );
+      case 'CANCELLED':
+        return NgeniusPaymentResult(
+          success: false,
+          status: 'CANCELLED',
+          message: 'Payment was cancelled by user',
+        );
+      default:
+        return NgeniusPaymentResult(
+          success: false,
+          status: 'UNKNOWN_ERROR',
+          message: 'An unexpected error occurred',
+        );
     }
   }
 }

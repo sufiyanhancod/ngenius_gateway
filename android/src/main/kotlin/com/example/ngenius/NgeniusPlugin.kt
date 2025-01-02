@@ -16,6 +16,7 @@ import payment.sdk.android.cardpayment.CardPaymentRequest
 
 private const val CHANNEL = "ngenius"
 private const val METHOD = "createOrder"
+private const val SAMSUNG_PAY_SERVICE_ID = ""
 private const val REQUEST_CODE = 100
 
 class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener {
@@ -69,7 +70,7 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
         }
 
         activity?.let {
-          PaymentClient(it, "").launchCardPayment(
+          PaymentClient(it, SAMSUNG_PAY_SERVICE_ID).launchCardPayment(
             request = CardPaymentRequest.builder()
               .gatewayUrl(authUrl)
               .code(code)
@@ -160,30 +161,29 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
   }
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-    return when(requestCode) {
-      REQUEST_CODE -> {
-        data?.let {
-          val paymentData = CardPaymentData.getFromIntent(it)
-          when (paymentData.code) {
-            CardPaymentData.STATUS_PAYMENT_CAPTURED -> {
-              result.success(mapOf(
-                "status" to "authorized",
-                "message" to "Payment authorized successfully"
-              ))
+    if (resultCode == Activity.RESULT_OK) {
+        when(requestCode) {
+            REQUEST_CODE -> {
+                if (data != null) {
+                    val paymentData = CardPaymentData.getFromIntent(data)
+                    val status = when (paymentData.code) {
+                        CardPaymentData.STATUS_PAYMENT_AUTHORIZED -> "AUTH_SUCCESS"
+                        CardPaymentData.STATUS_PAYMENT_CAPTURED -> "CAPTURE_SUCCESS"
+                        CardPaymentData.STATUS_PAYMENT_PURCHASED -> "PURCHASE_SUCCESS"
+                        CardPaymentData.STATUS_POST_AUTH_REVIEW -> "REVIEW_SUCCESS"
+                        CardPaymentData.STATUS_PAYMENT_FAILED -> "FAILED"
+                        else -> "ERROR"
+                    }
+                    result.success(status)
+                } else {
+                    result.success("ERROR")
+                }
             }
-            CardPaymentData.STATUS_PAYMENT_AUTHORIZED -> {
-            }
-            CardPaymentData.STATUS_PAYMENT_FAILED -> {
-              result.error("PAYMENT_FAILED", "Payment failed", null)
-            }
-            else -> {
-              result.error("ERROR", "Generic failure", "")
-            }
-          }
+            else -> {}
         }
-        true
-      }
-      else -> false
+    } else {
+        result.success("CANCELLED")
     }
+    return false
   }
 }

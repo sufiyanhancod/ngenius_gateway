@@ -60,12 +60,12 @@ public class NgeniusPlugin: NSObject, FlutterPlugin, CardPaymentDelegate {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "showCardPaymentUI":
-            if pendingResult != nil {
-                result(FlutterError(code: "ALREADY_IN_PROGRESS",
-                                  message: "Payment UI is already being shown",
-                                  details: nil))
-                return
-            }
+            // if pendingResult != nil {
+            //     result(FlutterError(code: "ALREADY_IN_PROGRESS",
+            //                       message: "Payment UI is already being shown",
+            //                       details: nil))
+            //     return
+            // }
             
             if let args = call.arguments as? [String: Any],
                let jsonString = args["response"] as? String,
@@ -90,8 +90,7 @@ public class NgeniusPlugin: NSObject, FlutterPlugin, CardPaymentDelegate {
     }
 
     private func showCardPaymentUI(orderResponse: OrderResponse) {
-        guard let viewController = self.viewController else {
-            print("Error: View controller not available")
+        guard let viewController = UIApplication.shared.keyWindow?.rootViewController else {
             return
         }
         

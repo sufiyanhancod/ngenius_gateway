@@ -16,7 +16,7 @@ class NetworkPaymentService {
       ? 'api-gateway.sandbox.ngenius-payments.com'
       : 'api-gateway.ngenius-payments.com';
 
-  /// Request access token from N-Genius Online identity services
+  /// Request access token from N-Genius Online identity service
   Future<String> _getAccessToken() async {
     final uri = Uri.https(_baseUrl, '/identity/auth/access-token');
 
