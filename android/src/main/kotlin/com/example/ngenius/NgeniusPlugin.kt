@@ -16,6 +16,7 @@ import payment.sdk.android.cardpayment.CardPaymentRequest
 
 private const val CHANNEL = "ngenius"
 private const val METHOD = "createOrder"
+//private const val SAMSUNG_PAY_SERVICE_ID = ""
 private const val SAMSUNG_PAY_SERVICE_ID = ""
 private const val REQUEST_CODE = 100
 
@@ -70,6 +71,7 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
         }
 
         activity?.let {
+        //  PaymentClient(it, SAMSUNG_PAY_SERVICE_ID).launchCardPayment()
           PaymentClient(it, SAMSUNG_PAY_SERVICE_ID).launchCardPayment(
             request = CardPaymentRequest.builder()
               .gatewayUrl(authUrl)
