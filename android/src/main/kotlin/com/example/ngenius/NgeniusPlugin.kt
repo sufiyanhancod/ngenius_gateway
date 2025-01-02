@@ -10,21 +10,20 @@ import android.content.Intent
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.PluginRegistry
-import payment.sdk.android.payments.PaymentsLauncher
-import payment.sdk.android.payments.PaymentsRequest
-import payment.sdk.android.payments.PaymentsResult
-import androidx.activity.ComponentActivity
-import android.util.Log
+import payment.sdk.android.PaymentClient
+import payment.sdk.android.cardpayment.CardPaymentData
+import payment.sdk.android.cardpayment.CardPaymentRequest
 
 private const val CHANNEL = "ngenius"
 private const val METHOD = "createOrder"
+private const val REQUEST_CODE = 100
 
 class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener {
   private lateinit var channel: MethodChannel
-  private var activity: Activity? = null
   private lateinit var result: Result
+  private var activity: Activity? = null
   private var binding: ActivityPluginBinding? = null
-  private var paymentsLauncher: PaymentsLauncher? = null
+//  private var paymentsLauncher: PaymentsLauncher? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, CHANNEL)
@@ -32,24 +31,24 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-    this.activity = binding.activity
     this.binding = binding
+    this.activity = binding.activity
     binding.addActivityResultListener(this)
-    initializePaymentsLauncher()
+//    initializePaymentsLauncher()
   }
 
-  private fun initializePaymentsLauncher() {
-    activity?.let { currentActivity ->
-        if (currentActivity is androidx.activity.ComponentActivity) {
-            paymentsLauncher = PaymentsLauncher(currentActivity) { paymentResult ->
-                handlePaymentResult(paymentResult)
-            }
-        } else {
-            Log.e("NgeniusPlugin", "Activity is not ComponentActivity")
-            result.error("INITIALIZATION_ERROR", "Activity must be ComponentActivity", null)
-        }
-    }
-  }
+//  private fun initializePaymentsLauncher() {
+//    activity?.let { currentActivity ->
+//        if (currentActivity is androidx.activity.ComponentActivity) {
+//            paymentsLauncher = PaymentsLauncher(currentActivity) { paymentResult ->
+//                handlePaymentResult(paymentResult)
+//            }
+//        } else {
+//            Log.e("NgeniusPlugin", "Activity is not ComponentActivity")
+//            result.error("INITIALIZATION_ERROR", "Activity must be ComponentActivity", null)
+//        }
+//    }
+//  }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
     this.result = result
@@ -58,30 +57,47 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
         val authUrl = call.argument<String>("authUrl") ?: ""
         val payPageUrl = call.argument<String>("payPageUrl") ?: ""
 
-        if (authUrl.isBlank() && payPageUrl.isBlank()) {
+        val urlSplit = payPageUrl.split("=")
+        var code = ""
+        if (urlSplit.size > 1) {
+          code = urlSplit[1]
+        }
+
+        if (authUrl.isBlank() && code.isBlank()) {
           result.error("INITIALISATION_ERROR", "Please provide valid gatewayUrl and code", "")
           return
         }
 
-        // Try to initialize launcher if it's null
-        if (paymentsLauncher == null) {
-          initializePaymentsLauncher()
+        activity?.let {
+          PaymentClient(it, "").launchCardPayment(
+            request = CardPaymentRequest.builder()
+              .gatewayUrl(authUrl)
+              .code(code)
+              .build(),
+            requestCode = REQUEST_CODE
+          )
         }
 
-        val request = PaymentsRequest.builder()
+//       Try to initialize launcher if it's null
+        /*if (paymentsLauncher == null) {
+          initializePaymentsLauncher()
+        }*/
+
+        /*val request = PaymentsRequest.builder()
           .gatewayAuthorizationUrl(authUrl)
           .payPageUrl(payPageUrl)
           .build()
 
         paymentsLauncher?.launch(request) ?: run {
           result.error("LAUNCHER_ERROR", "Payment launcher not initialized", null)
-        }
+        }*/
+
       }
       else -> result.notImplemented()
     }
   }
 
-  private fun handlePaymentResult(paymentResult: PaymentsResult) {
+  /*private fun handlePaymentResult(paymentResult: PaymentsResult) {
     when (paymentResult) {
       PaymentsResult.Success -> {
         result.success(mapOf(
@@ -120,23 +136,23 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
         ))
       }
     }
-  }
+  }*/
 
   override fun onDetachedFromActivityForConfigChanges() {
     this.activity = null
-    paymentsLauncher = null
+//    paymentsLauncher = null
   }
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
     this.activity = binding.activity
-    initializePaymentsLauncher()
+//    initializePaymentsLauncher()
   }
 
   override fun onDetachedFromActivity() {
     this.activity = null
     this.binding?.removeActivityResultListener(this)
     this.binding = null
-    paymentsLauncher = null
+//    paymentsLauncher = null
   }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -144,6 +160,30 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
   }
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-    return false
+    return when(requestCode) {
+      REQUEST_CODE -> {
+        data?.let {
+          val paymentData = CardPaymentData.getFromIntent(it)
+          when (paymentData.code) {
+            CardPaymentData.STATUS_PAYMENT_CAPTURED -> {
+              result.success(mapOf(
+                "status" to "authorized",
+                "message" to "Payment authorized successfully"
+              ))
+            }
+            CardPaymentData.STATUS_PAYMENT_AUTHORIZED -> {
+            }
+            CardPaymentData.STATUS_PAYMENT_FAILED -> {
+              result.error("PAYMENT_FAILED", "Payment failed", null)
+            }
+            else -> {
+              result.error("ERROR", "Generic failure", "")
+            }
+          }
+        }
+        true
+      }
+      else -> false
+    }
   }
 }

@@ -49,22 +49,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
-  dio:
-    dependency: transitive
-    description:
-      name: dio
-      sha256: "5598aa796bbf4699afd5c67c0f5f6e2ed542afc956884b9cd58c306966efc260"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.7.0"
-  dio_web_adapter:
-    dependency: transitive
-    description:
-      name: dio_web_adapter
-      sha256: "33259a9276d6cea88774a0000cfae0d861003497755969c92faa223108620dc8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -109,7 +93,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-<<<<<<< HEAD
   http:
     dependency: transitive
     description:
@@ -118,23 +101,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.2"
-=======
->>>>>>> ios-test
   http_parser:
     dependency: transitive
     description:
       name: http_parser
-<<<<<<< HEAD
-      sha256: "2aa08ce0341cc9b354a498388e30986515406668dbcc4f7c950c3e715496693b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.2"
-=======
       sha256: "76d306a1c3afb33fe82e2bbacad62a61f409b5634c915fceb0d799de1a913360"
       url: "https://pub.dev"
     source: hosted
     version: "4.1.1"
->>>>>>> ios-test
   integration_test:
     dependency: "direct dev"
     description: flutter
@@ -295,11 +269,7 @@ packages:
       sha256: "664d3a9a64782fcdeb83ce9c6b39e78fd2971d4e37827b9b06c3aa1edc5e760c"
       url: "https://pub.dev"
     source: hosted
-<<<<<<< HEAD
-    version: "0.7.2"
-=======
     version: "0.7.3"
->>>>>>> ios-test
   typed_data:
     dependency: transitive
     description:
@@ -323,11 +293,7 @@ packages:
       sha256: f6be3ed8bd01289b34d679c2b62226f63c0e69f9fd2e50a6b3c1c729a961041b
       url: "https://pub.dev"
     source: hosted
-<<<<<<< HEAD
-    version: "14.2.5"
-=======
     version: "14.3.0"
->>>>>>> ios-test
   web:
     dependency: transitive
     description:
