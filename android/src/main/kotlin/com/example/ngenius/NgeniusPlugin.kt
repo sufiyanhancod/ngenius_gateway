@@ -16,6 +16,7 @@ import payment.sdk.android.cardpayment.CardPaymentRequest
 
 private const val CHANNEL = "ngenius"
 private const val METHOD = "createOrder"
+private const val SAMSUNG_PAY_SERVICE_ID = ""
 private const val REQUEST_CODE = 100
 
 class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener {
@@ -69,7 +70,7 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
         }
 
         activity?.let {
-          PaymentClient(it, "").launchCardPayment(
+          PaymentClient(it, SAMSUNG_PAY_SERVICE_ID).launchCardPayment(
             request = CardPaymentRequest.builder()
               .gatewayUrl(authUrl)
               .code(code)
@@ -160,30 +161,40 @@ class NgeniusPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegi
   }
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-    return when(requestCode) {
-      REQUEST_CODE -> {
-        data?.let {
-          val paymentData = CardPaymentData.getFromIntent(it)
-          when (paymentData.code) {
-            CardPaymentData.STATUS_PAYMENT_CAPTURED -> {
-              result.success(mapOf(
-                "status" to "authorized",
-                "message" to "Payment authorized successfully"
-              ))
+    if (resultCode == Activity.RESULT_OK) {
+      when(requestCode) {
+        REQUEST_CODE -> {
+          if (data != null) {
+            val paymentData = CardPaymentData.getFromIntent(data)
+            when (paymentData.code) {
+              CardPaymentData.STATUS_PAYMENT_AUTHORIZED -> {
+              }
+              CardPaymentData.STATUS_PAYMENT_CAPTURED -> {
+              }
+              CardPaymentData.STATUS_PAYMENT_PURCHASED -> {
+                result.success(mapOf(
+                  "status" to "completed",
+                  "message" to "Payment completed successfully"
+                ))
+              }
+              CardPaymentData.STATUS_POST_AUTH_REVIEW -> {
+              }
+              CardPaymentData.STATUS_PAYMENT_FAILED -> {
+                result.error("PAYMENT_FAILED", "Payment failed", "")
+              }
+              else -> {
+                result.error("ERROR", "Generic failure", "")
+              }
             }
-            CardPaymentData.STATUS_PAYMENT_AUTHORIZED -> {
-            }
-            CardPaymentData.STATUS_PAYMENT_FAILED -> {
-              result.error("PAYMENT_FAILED", "Payment failed", null)
-            }
-            else -> {
-              result.error("ERROR", "Generic failure", "")
-            }
+          } else {
+            result.error("ERROR", "Generic failure", "")
           }
         }
-        true
+        else -> {}
       }
-      else -> false
+    } else {
+      result.error("CANCELLED", "Payment cancelled", "")
     }
+    return false
   }
 }
