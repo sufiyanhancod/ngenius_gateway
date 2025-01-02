@@ -133,6 +133,13 @@ class Ngenius {
         message: 'Payment completed successfully',
       );
     }
+    if (result == 'SUCCESS') {
+      return NgeniusPaymentResult(
+        success: true,
+        status: 'SUCCESS',
+        message: 'Payment completed successfully',
+      );
+    }
     if (result == 'CAPTURE_SUCCESS') {
       return NgeniusPaymentResult(
         success: true,
