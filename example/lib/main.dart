@@ -13,10 +13,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _ngeniusPlugin = Ngenius(
-      apiKey:
-          'ZmI3ODhlODQtYmVlYi00ZWFkLWIwZGYtOWYxNWM3YWM0MmI0OjhmNzhhNmQ2LTI2MGQtNDdjYy1hZTA5LTc2OTliZjgzNmY3Yg==',
-      outletId: '320d54c8-cb64-4199-9e51-be9611094a10');
+  final _ngeniusPlugin = Ngenius.instance;
 
   bool _isLoading = false;
   String _paymentStatus = '';
@@ -29,9 +26,8 @@ class _MyAppState extends State<MyApp> {
 
     try {
       final result = await _ngeniusPlugin.createOrder(
-        amount: 100,
-        currencyCode: 'AED',
-        action: 'AUTH',
+        //fill the order payload here
+        orderPayload: {},
       );
 
       setState(() {
