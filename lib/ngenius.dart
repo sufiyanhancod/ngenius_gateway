@@ -103,10 +103,10 @@ class Ngenius {
         message: 'Payment completed successfully',
       );
     }
-    if (result == 'CAPTURE_SUCCESS') {
+    if (result == 'SUCCESS') {
       return NgeniusPaymentResult(
         success: true,
-        status: 'CAPTURE_SUCCESS',
+        status: 'SUCCESS',
         message: 'Payment completed successfully',
       );
     }
